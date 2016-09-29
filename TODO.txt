@@ -1,0 +1,3 @@
+add creating log files
+add deleting files/dirs
+support for mutiple trash directories
