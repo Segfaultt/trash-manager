@@ -24,14 +24,14 @@ bool log(std::string file, std::fstream& logFile, int& entries)
 	//return true if unsuccessful
 	if (logFile.fail()) {
 		//output error message
-		if (!logFile.is_open) {
+		if (!logFile.is_open()) {
 			std::cout<<"error: log file not open\n";
 		}
 		else if (logFile.eof()) {
 			std::cout<<"error: log file reached EOF\n";
 		}
 		else {
-				std::cout<<"error: writing to log file failed\n";
+			std::cout<<"error: writing to log file failed\n";
 		}
 		return true;
 	}
