@@ -1,7 +1,7 @@
-#include <iostream> 			//outputting via CL
-#include <fstream> 				//interacting with log files
-#include <time.h> 				//logging time placed and checking current time
-#include <boost/filesystem.hpp>	//interacting with directories 
+#include <iostream>//outputting via CL
+#include <fstream>//interacting with log files
+#include <time.h>//logging time placed and checking current time
+#include <boost/filesystem.hpp>//interacting with directories 
 
 bool log(std::string, std::fstream&, int&);
 
