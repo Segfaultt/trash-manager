@@ -13,6 +13,20 @@ int main(int argc, const char *argv[])
 		return -1;
 	}
 
+	path trash;
+
+	//check if trashcan exists and is a directory
+	if (exists(trash)) {
+		if (!is_directory(trash)) {
+			std::cout<<"fatal error: specified trashcan exists but isn't a directory\n";
+			return -1;
+		}
+	}
+	else {
+		std::cout<<"fatal error: specified trashcan does not exist\n";
+		return -1;
+	}
+
 	return 0;
 }
 
