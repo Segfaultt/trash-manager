@@ -13,7 +13,7 @@ int main(int argc, const char *argv[])
 		return -1;
 	}
 
-	path trash;
+	boost::filesystem::path trash;
 
 	//check if trashcan exists and is a directory
 	if (exists(trash)) {
