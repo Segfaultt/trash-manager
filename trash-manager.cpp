@@ -1,5 +1,5 @@
 #include <iostream>//outputting via CL
-#include <boost/filesystem/fstream.hpp>//interacting with log files
+#include <fstream>//interacting with log files
 #include <time.h>//logging time placed and checking current time
 #include <boost/filesystem.hpp>//interacting with directories 
 
@@ -29,8 +29,30 @@ int main(int argc, const char *argv[])
 	}
 
 	//open logfile in trashcan
-	fstream logfile;
-	logfile.open(trash + ".trash-log");
+	#define LOGFILE (trash.string()+".trash-log")
+	std::fstream logfile;
+	logfile.open(LOGFILE);
+	//if there is no logfile then create one
+	if (!logfile.is_open()) {
+		std::cout<<"logfile does not exist, creating a new logfile\n";
+		//clear iostate flags from original opening attempt 
+		logfile.clear();
+		//create a new file 
+		logfile.open(LOGFILE, std::ios_base::out | std::ios_base::trunc);
+		//open it with the needed flags 
+		logfile.open(LOGFILE, std::ios_base::out | std::ios_base::out | std::ios_base::trunc);
+		//check if it created a logfile
+		if (!logfile.is_open()) {
+			std::cout<<"fatal error: could not open logfile at "<<LOGFILE<<'\n';
+			return -1;
+		}
+		else {
+			std::cout<<"successfully created a logfile at "<<LOGFILE<<'\n';;
+		}
+	}
+	else {
+		std::cout<<"successfully opened the existing logfile at "<<LOGFILE<<'\n';;
+	}
 
 	return 0;
 }
