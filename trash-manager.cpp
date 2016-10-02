@@ -1,5 +1,5 @@
 #include <iostream>//outputting via CL
-#include <fstream>//interacting with log files
+#include <boost/filesystem/fstream.hpp>//interacting with log files
 #include <time.h>//logging time placed and checking current time
 #include <boost/filesystem.hpp>//interacting with directories 
 
@@ -28,7 +28,9 @@ int main(int argc, const char *argv[])
 		return -1;
 	}
 
-	
+	//open logfile in trashcan
+	fstream logfile;
+	logfile.open(trash + ".trash-log");
 
 	return 0;
 }
