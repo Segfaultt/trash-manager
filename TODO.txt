@@ -1,3 +1,5 @@
+list directory entries
 add creating log files
 add deleting files/dirs
+make it a daemon
 support for mutiple trash directories
