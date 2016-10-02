@@ -13,7 +13,8 @@ int main(int argc, const char *argv[])
 		return -1;
 	}
 
-	boost::filesystem::path trash;
+	//declare trashcan directory
+	boost::filesystem::path trash(argv[1]);
 
 	//check if trashcan exists and is a directory
 	if (exists(trash)) {
@@ -26,6 +27,8 @@ int main(int argc, const char *argv[])
 		std::cout<<"fatal error: specified trashcan does not exist\n";
 		return -1;
 	}
+
+	
 
 	return 0;
 }
