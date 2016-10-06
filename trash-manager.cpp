@@ -32,7 +32,6 @@ int main(int argc, const char *argv[])
 		std::cout<<"fatal error: specified trashcan does not exist\n";
 		return -1;
 	}
-	//opening logfile
 	#define LOGFILE (trash.string()+".trash-log")
 	bool newLogfile = false;
 	std::fstream logfile;
@@ -69,7 +68,7 @@ int main(int argc, const char *argv[])
 		if (!newLogfile && isLogged(entry.path().string(), logfile)) {
 			std::cout<<"entry \""<<entry.path().string()<<"\" is already logged\n";
 		}
-		else {
+		else if (entry.path().filename().string() != ".trash-log" && entry.path().filename().string() != ".DS_Store" ) {
 			log (entry.path().string(), logfile);
 		}
 	}
