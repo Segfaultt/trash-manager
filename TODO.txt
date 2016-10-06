@@ -1,5 +1,3 @@
-add execptions list
-create log checking under line 67
 add deleting files/dirs
 make it a daemon
 support for mutiple trash directories
