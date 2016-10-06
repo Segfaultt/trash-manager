@@ -36,16 +36,14 @@ int main(int argc, const char *argv[])
 	#define LOGFILE (trash.string()+".trash-log")
 	bool newLogfile = false;
 	std::fstream logfile;
-	logfile.open(LOGFILE);
+	logfile.open(LOGFILE, std::ios_base::in | std::ios_base::out );
 	//if there is no logfile then create one
 	if (!logfile.is_open()) {
 		std::cout<<"logfile does not exist, creating a new logfile\n";
 		//clear iostate flags from original opening attempt 
 		logfile.clear();
 		//create a new file 
-		logfile.open(LOGFILE, std::ios_base::out | std::ios_base::trunc);
-		//open it with the needed flags 
-		logfile.open(LOGFILE, std::ios_base::out | std::ios_base::out | std::ios_base::trunc);
+		logfile.open(LOGFILE, std::ios_base::out);// | std::ios_base::app);
 		//set the newLogfile variable to true
 		newLogfile = true;
 		//check if it created a logfile
@@ -61,10 +59,15 @@ int main(int argc, const char *argv[])
 		std::cout<<"successfully opened the existing logfile at "<<LOGFILE<<'\n';;
 	}
 
+	///////////////////////////////////////////////////
+	//            Logging/deleting files             //
+	///////////////////////////////////////////////////
 	//for each file in the trashcan
 	for (boost::filesystem::directory_entry& entry : boost::filesystem::directory_iterator(trash)) {
 		//if it's an existing log file and the file is already logged 
+		logfile.clear();
 		if (!newLogfile && isLogged(entry.path().string(), logfile)) {
+			std::cout<<"entry \""<<entry.path().string()<<"\" is already logged\n";
 		}
 		else {
 			log (entry.path().string(), logfile);
@@ -75,28 +78,30 @@ int main(int argc, const char *argv[])
 }
 
 //add an entry to the log
-bool log(std::string file, std::fstream& logFile)
+bool log(std::string file, std::fstream& logfile)
 {
-	logFile<<file<<' '<<time(NULL)<<'\n';
-
-	//return true if unsuccessful
-	if (logFile.fail()) {
-		//output error message
-		if (!logFile.is_open()) {
-			std::cout<<"error: log file not open\n";
-		}
-		else if (logFile.eof()) {
-			std::cout<<"error: log file reached EOF\n";
-		}
-		else {
-			std::cout<<"error: writing to log file failed\n";
-		}
+	if (logfile<<file<<'\n'<<time(NULL)<<'\n') { //if it successfully wrote to the file
+		std::cout<<"successfully logged entry \""<<file<<"\"\n";
 		return true;
 	}
-	//if there are no errors return false
-	return false;
+	else {
+		std::cout<<"failed logging entry \""<<file<<"\"\n";
+		return false;
+	}
 }
 
+//check if an entry is logged
 bool isLogged(std::string entry, std::fstream& logfile) {
+	logfile.seekg(std::ios_base::beg);
+	std::string testString;
+	for (int i = 0; logfile.peek() != EOF; i++) {
+		getline(logfile, testString);
+		if (entry == testString) {
+			return true;
+		}
+		else {
+			logfile.ignore(2048, '\n');
+		}
+	}
 	return false;
 }
