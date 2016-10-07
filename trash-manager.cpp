@@ -35,14 +35,14 @@ int main(int argc, const char *argv[])
 	#define LOGFILE (trash.string()+".trash-log")
 	bool newLogfile = false;
 	std::fstream logfile;
-	logfile.open(LOGFILE, std::ios_base::in | std::ios_base::out );
+	logfile.open(LOGFILE, std::ios_base::in | std::ios_base::out | std::ios_base::app);
 	//if there is no logfile then create one
 	if (!logfile.is_open()) {
 		std::cout<<"logfile does not exist, creating a new logfile\n";
 		//clear iostate flags from original opening attempt 
 		logfile.clear();
 		//create a new file 
-		logfile.open(LOGFILE, std::ios_base::out);// | std::ios_base::app);
+		logfile.open(LOGFILE, std::ios_base::out);
 		//set the newLogfile variable to true
 		newLogfile = true;
 		//check if it created a logfile
@@ -91,16 +91,16 @@ bool log(std::string file, std::fstream& logfile)
 
 //check if an entry is logged
 bool isLogged(std::string entry, std::fstream& logfile) {
-	logfile.seekg(std::ios_base::beg);
+	int oldPosition = logfile.tellg();//get the position before search
+	logfile.seekg(std::ios_base::beg);//start search from beggining of the file
 	std::string testString;
 	for (int i = 0; logfile.peek() != EOF; i++) {
 		getline(logfile, testString);
-		if (entry == testString) {
+		logfile.ignore(2048, '\n');//drop a line for the time logged
+		if (entry == testString) {//if it's what we're looking for
 			return true;
 		}
-		else {
-			logfile.ignore(2048, '\n');
-		}
 	}
+	logfile.seekg(oldPosition);//return to the position from before the search
 	return false;
 }
