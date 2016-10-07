@@ -9,8 +9,7 @@ bool isLogged(std::string, std::fstream&);
 
 int main(int argc, const char *argv[])
 {
-	//check the number of arguments 
-	if (argc < 2) {
+	if (argc < 2) {//check the number of arguments 
 		std::cout<<"USAGE: trash-manager <trash-directory>\n";
 		return -1;
 	}
@@ -18,12 +17,11 @@ int main(int argc, const char *argv[])
 	///////////////////////////////////////////////
 	//              Opening logfile              //
 	///////////////////////////////////////////////
-	//declare trashcan directory
-	boost::filesystem::path trash(argv[1]);
 
-	//check if trashcan exists and is a directory
-	if (exists(trash)) {
-		if (!is_directory(trash)) {
+	boost::filesystem::path trash(argv[1]);//open trashcan 
+
+	if (exists(trash)) {//check if trashcan exists
+		if (!is_directory(trash)) {//and is also a directory
 			std::cout<<"fatal error: specified trashcan exists but isn't a directory\n";
 			return -1;
 		}
@@ -36,17 +34,13 @@ int main(int argc, const char *argv[])
 	bool newLogfile = false;
 	std::fstream logfile;
 	logfile.open(LOGFILE, std::ios_base::in | std::ios_base::out | std::ios_base::app);
-	//if there is no logfile then create one
-	if (!logfile.is_open()) {
+
+	if (!logfile.is_open()) {//if there is no logfile then create one
 		std::cout<<"logfile does not exist, creating a new logfile\n";
-		//clear iostate flags from original opening attempt 
-		logfile.clear();
-		//create a new file 
-		logfile.open(LOGFILE, std::ios_base::out);
-		//set the newLogfile variable to true
+		logfile.clear();//clear iostate flags from original opening attempt 
+		logfile.open(LOGFILE, std::ios_base::out);//create a new file (no need for input)
 		newLogfile = true;
-		//check if it created a logfile
-		if (!logfile.is_open()) {
+		if (!logfile.is_open()) {//check if it created a logfile successfully 
 			std::cout<<"fatal error: could not open logfile at "<<LOGFILE<<'\n';
 			return -1;
 		}
@@ -61,11 +55,9 @@ int main(int argc, const char *argv[])
 	///////////////////////////////////////////////////
 	//            Logging/deleting files             //
 	///////////////////////////////////////////////////
-	//for each file in the trashcan
-	for (boost::filesystem::directory_entry& entry : boost::filesystem::directory_iterator(trash)) {
-		//if it's an existing log file and the file is already logged 
+	for (boost::filesystem::directory_entry& entry : boost::filesystem::directory_iterator(trash)) {//for each file in the trashcan
 		logfile.clear();
-		if (!newLogfile && isLogged(entry.path().string(), logfile)) {
+		if (!newLogfile && isLogged(entry.path().string(), logfile)) {//if it's an existing log file and the file is already logged 
 			std::cout<<"entry \""<<entry.path().string()<<"\" is already logged\n";
 		}
 		else if (entry.path().filename().string() != ".trash-log" && entry.path().filename().string() != ".DS_Store" ) {
