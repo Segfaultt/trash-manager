@@ -63,11 +63,15 @@ int main(int argc, const char *argv[])
 			std::cout<<"entry \""<<entry.path().string()<<"\" is already logged\n";
 			logfile>>age;
 			std::cout<<"\tdate logged: "<<age<<std::endl;
+			if (time(NULL) - age > 1210000) {//if it was logged more than 2 weeks ago
+				std::cout<<'\t'<<entry.path().string()<<" is was logged more than 2 weeks ago. This file will be deleted\n";
+			}
 		}
 		else if (entry.path().filename().string() != ".trash-log" && entry.path().filename().string() != ".DS_Store" ) {
 			logfile.seekg(oldPosition);//return to the position from before the search
 			log (entry.path().string(), logfile);
 		}
+		std::cout<<std::endl;
 	}
 
 	return 0;
