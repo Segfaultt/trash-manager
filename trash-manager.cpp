@@ -55,12 +55,17 @@ int main(int argc, const char *argv[])
 	///////////////////////////////////////////////////
 	//            Logging/deleting files             //
 	///////////////////////////////////////////////////
+	int age = -1;
+	int oldPosition;
 	for (boost::filesystem::directory_entry& entry : boost::filesystem::directory_iterator(trash)) {//for each file in the trashcan
-		logfile.clear();
+		oldPosition = logfile.tellg();
 		if (!newLogfile && isLogged(entry.path().string(), logfile)) {//if it's an existing log file and the file is already logged 
 			std::cout<<"entry \""<<entry.path().string()<<"\" is already logged\n";
+			logfile>>age;
+			std::cout<<"\tdate logged: "<<age<<std::endl;
 		}
 		else if (entry.path().filename().string() != ".trash-log" && entry.path().filename().string() != ".DS_Store" ) {
+			logfile.seekg(oldPosition);//return to the position from before the search
 			log (entry.path().string(), logfile);
 		}
 	}
@@ -83,16 +88,16 @@ bool log(std::string file, std::fstream& logfile)
 
 //check if an entry is logged
 bool isLogged(std::string entry, std::fstream& logfile) {
-	int oldPosition = logfile.tellg();//get the position before search
 	logfile.seekg(std::ios_base::beg);//start search from beggining of the file
 	std::string testString;
 	for (int i = 0; logfile.peek() != EOF; i++) {
 		getline(logfile, testString);
-		logfile.ignore(2048, '\n');//drop a line for the time logged
 		if (entry == testString) {//if it's what we're looking for
+			logfile.clear();
 			return true;
 		}
+		logfile.ignore(2048, '\n');//drop a line for the time logged 
 	}
-	logfile.seekg(oldPosition);//return to the position from before the search
+	logfile.clear();
 	return false;
 }
