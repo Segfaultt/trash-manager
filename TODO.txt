@@ -1,3 +1,4 @@
 add deleting files/dirs
+add removing unnecessary entries
 make it a daemon
 support for mutiple trash directories
