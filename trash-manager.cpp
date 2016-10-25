@@ -7,6 +7,8 @@ bool log(std::string, std::fstream&);
 
 bool isLogged(std::string, std::fstream&);
 
+void cleanLogfile(std::fstream&, boost::filesystem::path);//open trashcan 
+
 int main(int argc, const char *argv[])
 {
 	if (argc < 2) {//check the number of arguments 
@@ -65,6 +67,7 @@ int main(int argc, const char *argv[])
 			std::cout<<"\tdate logged: "<<age<<std::endl;
 			if (time(NULL) - age > 1210000) {//if it was logged more than 2 weeks ago
 				std::cout<<'\t'<<entry.path().string()<<" is was logged more than 2 weeks ago. This file will be deleted\n";
+				remove(entry);//delete file
 			}
 		}
 		else if (entry.path().filename().string() != ".trash-log" && entry.path().filename().string() != ".DS_Store" ) {
@@ -104,4 +107,32 @@ bool isLogged(std::string entry, std::fstream& logfile) {
 	}
 	logfile.clear();
 	return false;
+}
+
+void cleanLogfile(std::fstream logfile, boost::filesystem::path trash) 
+{
+	////////////////////////////////////
+	//     Find entries to remove     //
+	////////////////////////////////////
+	std::string fileEntry;
+	std::list<std::string> needlessEntries;
+	bool needed;
+	while(logfile.peek() != EOF) {
+		getline(logfile, fileEntry);
+		logfile.ignore(2048, '\n');
+		
+		needed = false;
+		for (boost::filesystem::directory_entry& dirEntry : boost::filesystem::directory_iterator(trash)) {//for each file in the trashcan
+			if (fileEntry == dirEntry) {
+				needed = true;
+				break;
+			}
+		}
+		if (needed == false)
+		needlessEntries.push_back(fileEntry);//add to list of entries to be removed 
+	}
+
+	//////////////////////////////////
+	//       Removing entries       //
+	//////////////////////////////////
 }
