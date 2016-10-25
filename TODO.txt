@@ -1,3 +1,4 @@
+make a makefile
 make it a daemon
 improve README.md
 support for mutiple trash directories
