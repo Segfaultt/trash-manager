@@ -7,8 +7,6 @@ bool log(std::string, std::fstream&);
 
 bool isLogged(std::string, std::fstream&);
 
-void cleanLogfile(std::fstream&, boost::filesystem::path);//open trashcan 
-
 int main(int argc, const char *argv[])
 {
 	if (argc < 2) {//check the number of arguments 
@@ -77,6 +75,39 @@ int main(int argc, const char *argv[])
 		std::cout<<std::endl;
 	}
 
+	////////////////////////////////////////
+	//     Remove unneccesary entries     //
+	////////////////////////////////////////
+	std::string fileEntry;
+	bool iterOnAge;
+	std::fstream cleanLogfile;
+	cleanLogfile.open(trash.string() + ".new_trash-log", std::ios_base::out );
+
+	logfile.seekg(std::ios_base::beg);
+	while(logfile.peek() != EOF) {
+		getline(logfile, fileEntry);
+		iterOnAge = true;
+		for (boost::filesystem::directory_entry& dirEntry : boost::filesystem::directory_iterator(trash)) {//for each file in the trashcan
+			if (fileEntry == dirEntry) {//if it's a match and needed then add it and it's age to the new file
+				cleanLogfile<<fileEntry<<std::endl;
+				getline(logfile, fileEntry);//get age
+				cleanLogfile<<fileEntry<<std::endl;
+				iterOnAge = false;
+				break;
+			}
+		}
+		if (iterOnAge) {//skip age if needed
+			logfile.ignore(2048, '\n');
+		}
+	}
+	
+	logfile.close();
+	cleanLogfile.close();
+	boost::filesystem::path dirtyLogfilePath(LOGFILE);//create path for the dirty logfile
+	boost::filesystem::path cleanLogfilePath(trash.string() + ".new_trash-log");//create path for the clean logfile
+	remove(dirtyLogfilePath);//delete old logfile
+	rename(cleanLogfilePath, LOGFILE);//replace it with cleanLogfile
+	
 	return 0;
 }
 
@@ -107,32 +138,4 @@ bool isLogged(std::string entry, std::fstream& logfile) {
 	}
 	logfile.clear();
 	return false;
-}
-
-void cleanLogfile(std::fstream logfile, boost::filesystem::path trash) 
-{
-	////////////////////////////////////
-	//     Find entries to remove     //
-	////////////////////////////////////
-	std::string fileEntry;
-	std::list<std::string> needlessEntries;
-	bool needed;
-	while(logfile.peek() != EOF) {
-		getline(logfile, fileEntry);
-		logfile.ignore(2048, '\n');
-		
-		needed = false;
-		for (boost::filesystem::directory_entry& dirEntry : boost::filesystem::directory_iterator(trash)) {//for each file in the trashcan
-			if (fileEntry == dirEntry) {
-				needed = true;
-				break;
-			}
-		}
-		if (needed == false)
-		needlessEntries.push_back(fileEntry);//add to list of entries to be removed 
-	}
-
-	//////////////////////////////////
-	//       Removing entries       //
-	//////////////////////////////////
 }
