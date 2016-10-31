@@ -3,18 +3,23 @@
 #include <time.h>//logging time placed and checking current time
 #include <boost/filesystem.hpp>//interacting with directories 
 
-bool log(std::string, std::fstream&, bool);
+bool log(std::string, std::fstream&, bool, bool);
 
 bool isLogged(std::string, std::fstream&);
 
 int main(int argc, const char *argv[])
 {
-	if (argc < 2) {//check the number of arguments 
-		std::cout<<"USAGE: trash-manager [-v] <trash-directory>\n";
-		return -1;
+	bool verbose = false, quiet = false;
+	if (argc == 3) {//if argc == 3, what's argv[1]?
+		verbose = (strncmp(argv[1], "-v", 2) == 0);//check for verbose flag
+		quiet = (strncmp(argv[1], "-q", 2) == 0);//check for quiet flag
 	}
 
-	bool verbose = (argc > 2 && strncmp(argv[1], "-v", 2) == 0);//check for verbosity flag
+	if (argc < 2) {//check the number of arguments 
+		if (!quiet)
+		std::cout<<"USAGE: trash-manager [-v||-q] <trash-directory>\n";
+		return -1;
+	}
 
 	///////////////////////////////////////////////
 	//              Opening logfile              //
@@ -24,11 +29,13 @@ int main(int argc, const char *argv[])
 
 	if (exists(trash)) {//check if trashcan exists
 		if (!is_directory(trash)) {//and is also a directory
+			if (!quiet)
 			std::cout<<"fatal error: specified trashcan exists but isn't a directory\n";
 			return -1;
 		}
 	}
 	else {
+		if (!quiet)
 		std::cout<<"fatal error: specified trashcan does not exist\n";
 		return -1;
 	}
@@ -44,6 +51,7 @@ int main(int argc, const char *argv[])
 		logfile.open(LOGFILE, std::ios_base::out);//create a new file (no need for input)
 		newLogfile = true;
 		if (!logfile.is_open()) {//check if it created a logfile successfully 
+			if (!quiet)
 			std::cout<<"fatal error: could not open logfile at "<<LOGFILE<<'\n';
 			return -1;
 		}
@@ -75,7 +83,7 @@ int main(int argc, const char *argv[])
 		}
 		else if (entry.path().filename().string() != ".trash-log" && entry.path().filename().string() != ".DS_Store" ) {
 			logfile.seekg(oldPosition);//return to the position from before the search
-			log (entry.path().string(), logfile, verbose);
+			log (entry.path().string(), logfile, verbose, quiet);
 		}
 		if (verbose)
 		std::cout<<std::endl;
@@ -118,7 +126,7 @@ int main(int argc, const char *argv[])
 }
 
 //add an entry to the log
-bool log(std::string file, std::fstream& logfile, bool verbose)
+bool log(std::string file, std::fstream& logfile, bool verbose, bool quiet)
 {
 	bool successful;
 
@@ -127,7 +135,7 @@ bool log(std::string file, std::fstream& logfile, bool verbose)
 	else 
 	successful = false;
 
-	if (!successful) 
+	if (!successful && !quiet) 
 	std::cout<<"failed logging entry \""<<file<<"\"\n";
 	else if (verbose) 
 	std::cout<<"successfully logged entry \""<<file<<"\"\n";
