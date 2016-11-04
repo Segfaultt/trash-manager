@@ -9,14 +9,14 @@ bool isLogged(std::string, std::fstream&);
 
 int main(int argc, const char *argv[])
 {
-	bool verbose = false, quiet = false;
-	if (argc == 3) {//if argc == 3, what's argv[1]?
+	bool verbose = false, quiet = false, help = false;
+	if (argc > 1) {//check for flags 
 		verbose = (strncmp(argv[1], "-v", 2) == 0);//check for verbose flag
 		quiet = (strncmp(argv[1], "-q", 2) == 0);//check for quiet flag
+		help = ((strncmp(argv[1], "-h", 2) == 0) || (strncmp(argv[1], "--help", 6) == 0));//check for help flag
 	}
 
-	if (argc < 2) {//check the number of arguments 
-		if (!quiet)
+	if (help | (argc < 2)) {//check the number of arguments 
 		std::cout<<"USAGE: trash-manager [-v||-q] <trash-directory>\n";
 		return -1;
 	}
