@@ -17,7 +17,7 @@ int main(int argc, const char *argv[])
 	}
 
 	if (help | (argc < 2)) {//check the number of arguments 
-		std::cout<<"USAGE: trash-manager [-v||-q] <trash-directory>\n";
+		std::cout<<"USAGE: trash-manager [-v|-q] <trash-directory>\n";
 		return -1;
 	}
 
