@@ -47,7 +47,7 @@ bool log(std::string file, std::fstream& logfile, bool verbose, bool quiet)
 	successful = false;
 
 	if (!successful && !quiet) 
-	std::cout<<"failed logging entry \""<<file<<"\"\n";
+	std::cerr<<"failed logging entry \""<<file<<"\"\n";
 	else if (verbose) 
 	std::cout<<"successfully logged entry \""<<file<<"\"\n";
 		
@@ -80,13 +80,13 @@ int  manage_trash(std::string trash_location, bool verbose, bool quiet)
 	if (exists(trash)) {//check if trashcan exists
 		if (!is_directory(trash)) {//and is also a directory
 			if (!quiet)
-			std::cout<<"fatal error: specified "<<trash_location<<" exists but isn't a directory\n";
+			std::cerr<<"fatal error: specified "<<trash_location<<" exists but isn't a directory\n";
 			return -1;
 		}
 	}
 	else {
 		if (!quiet)
-		std::cout<<"fatal error: "<<trash_location<<" does not exist\n";
+		std::cerr<<"fatal error: "<<trash_location<<" does not exist\n";
 		return -1;
 	}
 	#define LOGFILE (trash.string()+".trash-log")
@@ -102,7 +102,7 @@ int  manage_trash(std::string trash_location, bool verbose, bool quiet)
 		newLogfile = true;
 		if (!logfile.is_open()) {//check if it created a logfile successfully 
 			if (!quiet)
-			std::cout<<"fatal error: could not open logfile at "<<LOGFILE<<'\n';
+			std::cerr<<"fatal error: could not open logfile at "<<LOGFILE<<'\n';
 			return -1;
 		}
 		else if (verbose)
