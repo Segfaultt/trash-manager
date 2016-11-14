@@ -7,7 +7,7 @@ bool log(std::string, std::fstream&, bool, bool);
 
 bool isLogged(std::string, std::fstream&);
 
-int  manage_trash(boost::filesystem::path, bool, bool);
+int  manage_trash(std::string, bool, bool);
 
 int main(int argc, const char *argv[])
 {
@@ -18,12 +18,20 @@ int main(int argc, const char *argv[])
 		help = ((strncmp(argv[1], "-h", 2) == 0) || (strncmp(argv[1], "--help", 6) == 0));//check for help flag
 	}
 
-	if (help | (argc < 2)) {//check the number of arguments 
+	if (help) {//check the help flag
 		std::cout<<"USAGE: trash-manager [-v|-q] <trash-directory>\n";
 		return -1;
 	}
-	boost::filesystem::path trash(argv[argc-1]);//open trashcan using last argument
-	manage_trash(trash, verbose, quiet);
+
+	if (argc - verbose - quiet) {
+		boost::filesystem::path homes("/Users/");
+		for (boost::filesystem::directory_entry& home : boost::filesystem::directory_iterator(homes)) {//for each in homes
+			manage_trash((home.path().string() + "/.Trash/"), verbose, quiet);
+		}
+	}
+	else {
+		manage_trash((std::string)argv[argc - 1], verbose, quiet);
+	}
 
 	return 0;
 }
@@ -62,22 +70,23 @@ bool isLogged(std::string entry, std::fstream& logfile) {
 	return false;
 }
 
-int  manage_trash(boost::filesystem::path trash, bool verbose, bool quiet)
+int  manage_trash(std::string trash_location, bool verbose, bool quiet)
 {
 	///////////////////////////////////////////////
 	//              Opening logfile              //
 	///////////////////////////////////////////////
+	boost::filesystem::path trash(trash_location);//open trashcan using last argument
 
 	if (exists(trash)) {//check if trashcan exists
 		if (!is_directory(trash)) {//and is also a directory
 			if (!quiet)
-			std::cout<<"fatal error: specified trashcan exists but isn't a directory\n";
+			std::cout<<"fatal error: specified "<<trash_location<<" exists but isn't a directory\n";
 			return -1;
 		}
 	}
 	else {
 		if (!quiet)
-		std::cout<<"fatal error: specified trashcan does not exist\n";
+		std::cout<<"fatal error: "<<trash_location<<" does not exist\n";
 		return -1;
 	}
 	#define LOGFILE (trash.string()+".trash-log")
