@@ -7,6 +7,8 @@ bool log(std::string, std::fstream&, bool, bool);
 
 bool isLogged(std::string, std::fstream&);
 
+int  manage_trash(boost::filesystem::path, bool, bool);
+
 int main(int argc, const char *argv[])
 {
 	bool verbose = false, quiet = false, help = false;
@@ -20,12 +22,51 @@ int main(int argc, const char *argv[])
 		std::cout<<"USAGE: trash-manager [-v|-q] <trash-directory>\n";
 		return -1;
 	}
+	boost::filesystem::path trash(argv[argc-1]);//open trashcan using last argument
+	manage_trash(trash, verbose, quiet);
 
+	return 0;
+}
+
+//add an entry to the log
+bool log(std::string file, std::fstream& logfile, bool verbose, bool quiet)
+{
+	bool successful;
+
+	if (logfile<<file<<'\n'<<time(NULL)<<'\n')//if it successfully wrote to the file
+	successful = true;
+	else 
+	successful = false;
+
+	if (!successful && !quiet) 
+	std::cout<<"failed logging entry \""<<file<<"\"\n";
+	else if (verbose) 
+	std::cout<<"successfully logged entry \""<<file<<"\"\n";
+		
+	return successful;
+}
+
+//check if an entry is logged
+bool isLogged(std::string entry, std::fstream& logfile) {
+	logfile.seekg(std::ios_base::beg);//start search from beggining of the file
+	std::string testString;
+	for (int i = 0; logfile.peek() != EOF; i++) {
+		getline(logfile, testString);
+		if (entry == testString) {//if it's what we're looking for
+			logfile.clear();
+			return true;
+		}
+		logfile.ignore(2048, '\n');//drop a line for the time logged 
+	}
+	logfile.clear();
+	return false;
+}
+
+int  manage_trash(boost::filesystem::path trash, bool verbose, bool quiet)
+{
 	///////////////////////////////////////////////
 	//              Opening logfile              //
 	///////////////////////////////////////////////
-
-	boost::filesystem::path trash(argv[argc-1]);//open trashcan using last argument
 
 	if (exists(trash)) {//check if trashcan exists
 		if (!is_directory(trash)) {//and is also a directory
@@ -123,38 +164,4 @@ int main(int argc, const char *argv[])
 	rename(cleanLogfilePath, LOGFILE);//replace it with cleanLogfile
 	
 	return 0;
-}
-
-//add an entry to the log
-bool log(std::string file, std::fstream& logfile, bool verbose, bool quiet)
-{
-	bool successful;
-
-	if (logfile<<file<<'\n'<<time(NULL)<<'\n')//if it successfully wrote to the file
-	successful = true;
-	else 
-	successful = false;
-
-	if (!successful && !quiet) 
-	std::cout<<"failed logging entry \""<<file<<"\"\n";
-	else if (verbose) 
-	std::cout<<"successfully logged entry \""<<file<<"\"\n";
-		
-	return successful;
-}
-
-//check if an entry is logged
-bool isLogged(std::string entry, std::fstream& logfile) {
-	logfile.seekg(std::ios_base::beg);//start search from beggining of the file
-	std::string testString;
-	for (int i = 0; logfile.peek() != EOF; i++) {
-		getline(logfile, testString);
-		if (entry == testString) {//if it's what we're looking for
-			logfile.clear();
-			return true;
-		}
-		logfile.ignore(2048, '\n');//drop a line for the time logged 
-	}
-	logfile.clear();
-	return false;
 }
